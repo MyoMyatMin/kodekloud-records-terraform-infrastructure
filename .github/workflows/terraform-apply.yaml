@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - develop
+      - dev-test
 
 jobs:
   terraform:
@@ -33,4 +33,3 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           TF_VAR_aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          
