@@ -1,6 +1,6 @@
 terraform {
   required_version = ">= 1.3.0"
-  
+
   # This backend configuration will be used after the bucket is created
   # You'll need to run terraform init -reconfigure after first applying
   backend "s3" {
@@ -8,7 +8,7 @@ terraform {
     region  = "us-east-1"
     encrypt = true
     # The bucket name will be set during terraform init with -backend-config
-    # bucket  = "unique-bucket-name-will-be-set-via-backend-config"
+    bucket = "unique-bucket-name-will-be-set-via-backend-config"
   }
 }
 
@@ -20,7 +20,7 @@ resource "random_id" "bucket_suffix" {
 # Create the S3 bucket for storing Terraform state
 resource "aws_s3_bucket" "terraform_state" {
   bucket = "terraform-state-${random_id.bucket_suffix.hex}"
-  
+
   lifecycle {
     prevent_destroy = true
   }
@@ -37,7 +37,7 @@ resource "aws_s3_bucket_versioning" "versioning" {
 # Enable server-side encryption for the state bucket
 resource "aws_s3_bucket_server_side_encryption_configuration" "encryption" {
   bucket = aws_s3_bucket.terraform_state.id
-  
+
   rule {
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
@@ -56,20 +56,20 @@ resource "aws_s3_bucket_public_access_block" "public_access" {
 
 # Output the bucket name for use in the backend configuration
 output "state_bucket_name" {
-  value = aws_s3_bucket.terraform_state.bucket
+  value       = aws_s3_bucket.terraform_state.bucket
   description = "The name of the S3 bucket for Terraform state storage"
 }
 
 # IAM User Module
 module "iam_users" {
   source = "./modules/iam-user"
-  
+
   iam_usernames = var.iam_usernames
   managed_policy_arns = [
     "arn:aws:iam::aws:policy/ReadOnlyAccess",
     "arn:aws:iam::aws:policy/IAMUserChangePassword"
   ]
-  
+
   inline_policy_document = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -86,7 +86,7 @@ module "iam_users" {
           "s3:List*",
           "s3:Get*",
         ]
-        Effect   = "Allow"
+        Effect = "Allow"
         Resource = [
           "arn:aws:s3:::dev-bucket",
           "arn:aws:s3:::dev-bucket/*"
@@ -99,7 +99,7 @@ module "iam_users" {
           "s3:PutObject",
           "s3:DeleteObject"
         ]
-        Effect   = "Allow"
+        Effect = "Allow"
         Resource = [
           "arn:aws:s3:::${aws_s3_bucket.terraform_state.bucket}",
           "arn:aws:s3:::${aws_s3_bucket.terraform_state.bucket}/*"
