@@ -1,15 +1,13 @@
 terraform {
   required_version = ">= 1.3.0"
 
-  # This backend configuration will be used after the bucket is created
-  # You'll need to run terraform init -reconfigure after first applying
-  backend "s3" {
-    key     = "global/terraform.tfstate"
-    region  = "us-east-1"
-    encrypt = true
-    # The bucket name will be set during terraform init with -backend-config
-    bucket = "unique-bucket-name-will-be-set-via-backend-config"
-  }
+  # Uncomment after the bootstrap S3 bucket exists and you are ready to migrate state.
+  # backend "s3" {
+  #   key     = "global/terraform.tfstate"
+  #   region  = "us-east-1"
+  #   encrypt = true
+  #   bucket  = "unique-bucket-name-will-be-set-via-backend-config"
+  # }
 }
 
 # Generate a unique ID for the bucket
